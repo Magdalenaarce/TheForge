@@ -78,6 +78,30 @@ function MuralCard({ mural }: { mural: Mural }) {
   );
 }
 
+function RopePull({ progress }: { progress: number }) {
+  const pull = Math.min(Math.max(progress, 0), 1);
+  const translate = (pull * 100).toFixed(1);
+
+  return (
+    <div
+      className="pointer-events-none sticky top-24 hidden h-[70vh] w-16 select-none items-start justify-center sm:flex"
+      aria-hidden
+    >
+      <div className="relative h-full w-[10px] overflow-hidden rounded-full bg-[repeating-linear-gradient(135deg,#f8dba7_0_12px,#d59d42_12px_24px)] shadow-[0_0_0_1px_rgba(0,0,0,0.35)]">
+        <div
+          className="absolute left-1/2 h-16 w-12 -translate-x-1/2 rounded-2xl bg-gradient-to-b from-[#fce3af] via-[#f6c066] to-[#d6872d] shadow-[0_12px_40px_rgba(0,0,0,0.35)] transition-transform duration-200 ease-out"
+          style={{ transform: `translate(-50%, calc(${translate}% - 14px))` }}
+        >
+          <div className="absolute inset-x-3 top-2 h-1.5 rounded-full bg-white/60" />
+          <div className="absolute inset-x-2 bottom-2 h-1 rounded-full bg-black/20" />
+        </div>
+        <div className="absolute inset-x-[-6px] top-0 h-3 rounded-full bg-black/30 blur-sm" />
+        <div className="absolute inset-x-[-10px] bottom-[-18px] h-10 rounded-full bg-black/25 blur-xl" />
+      </div>
+    </div>
+  );
+}
+
 function TickerColumn({
   direction,
   offset,
@@ -113,6 +137,7 @@ export function DoubleTicker() {
   const [offset, setOffset] = useState(0);
 
   const travelDistance = murals.length * CARD_HEIGHT;
+  const progress = travelDistance > 0 ? Math.min(Math.max(offset / travelDistance, 0), 1) : 0;
 
   useEffect(() => {
     const element = scrollRef.current;
@@ -157,25 +182,29 @@ export function DoubleTicker() {
         </p>
       </header>
 
-      <div
-        ref={scrollRef}
-        className="ticker-scrollbar relative h-[70vh] overflow-y-scroll rounded-3xl bg-gradient-to-b from-[#0b0b12] via-[#0b1120] to-black p-4 shadow-2xl ring-1 ring-white/10"
-      >
-        <div style={{ height: travelDistance }} aria-hidden />
+      <div className="flex items-start justify-end gap-6">
+        <div
+          ref={scrollRef}
+          className="ticker-scrollbar relative h-[70vh] flex-1 overflow-y-scroll rounded-3xl bg-gradient-to-b from-[#0b0b12] via-[#0b1120] to-black p-4 shadow-2xl ring-1 ring-white/10"
+        >
+          <div style={{ height: travelDistance }} aria-hidden />
 
-        <div className="pointer-events-none absolute inset-0">
-          <div className="grid h-full grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="pointer-events-auto">
-              <TickerColumn direction="down" offset={offset} />
-            </div>
-            <div className="pointer-events-auto">
-              <TickerColumn direction="up" offset={offset} />
+          <div className="pointer-events-none absolute inset-0">
+            <div className="grid h-full grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="pointer-events-auto">
+                <TickerColumn direction="down" offset={offset} />
+              </div>
+              <div className="pointer-events-auto">
+                <TickerColumn direction="up" offset={offset} />
+              </div>
             </div>
           </div>
+
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#0b0b12] to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black to-transparent" />
         </div>
 
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#0b0b12] to-transparent" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black to-transparent" />
+        <RopePull progress={progress} />
       </div>
     </section>
   );
